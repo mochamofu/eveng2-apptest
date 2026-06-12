@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#6c5ce7">
+  <title>習慣トラッカー | Habit Tracker</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <h1>🔥 習慣トラッカー</h1>
+      <p id="today-label" class="today-label"></p>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- サマリー -->
+    <section id="summary" class="summary" aria-label="今日のサマリー">
+      <div class="summary-card">
+        <span class="summary-value" id="summary-done">0/0</span>
+        <span class="summary-label">今日の達成</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-value" id="summary-streak">0</span>
+        <span class="summary-label">最長ストリーク</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-value" id="summary-total">0</span>
+        <span class="summary-label">累計達成回数</span>
+      </div>
+    </section>
+
+    <!-- 習慣リスト -->
+    <section id="habit-list" class="habit-list" aria-label="習慣リスト"></section>
+
+    <p id="empty-message" class="empty-message hidden">
+      まだ習慣がありません。<br>「＋ 習慣を追加」から始めましょう！
+    </p>
+
+    <button id="add-habit-btn" class="add-btn" type="button">＋ 習慣を追加</button>
+  </main>
+
+  <!-- 習慣追加/編集ダイアログ -->
+  <div id="habit-dialog" class="dialog-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+    <div class="dialog">
+      <h2 id="dialog-title">習慣を追加</h2>
+      <form id="habit-form">
+        <label class="field">
+          <span class="field-label">習慣の名前</span>
+          <input type="text" id="habit-name" maxlength="30" placeholder="例: 朝のストレッチ" required>
+        </label>
+
+        <div class="field">
+          <span class="field-label">アイコン</span>
+          <div id="emoji-picker" class="emoji-picker" role="radiogroup" aria-label="アイコン選択"></div>
+        </div>
+
+        <div class="field">
+          <span class="field-label">カラー</span>
+          <div id="color-picker" class="color-picker" role="radiogroup" aria-label="カラー選択"></div>
+        </div>
+
+        <div class="dialog-actions">
+          <button type="button" id="cancel-btn" class="btn btn-ghost">キャンセル</button>
+          <button type="submit" class="btn btn-primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- カレンダーダイアログ -->
+  <div id="calendar-dialog" class="dialog-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="calendar-title">
+    <div class="dialog">
+      <div class="calendar-header">
+        <button type="button" id="cal-prev" class="cal-nav" aria-label="前の月">‹</button>
+        <h2 id="calendar-title"></h2>
+        <button type="button" id="cal-next" class="cal-nav" aria-label="次の月">›</button>
+      </div>
+      <div class="calendar-weekdays">
+        <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
+      </div>
+      <div id="calendar-grid" class="calendar-grid"></div>
+      <div class="calendar-stats">
+        <span id="cal-streak"></span>
+        <span id="cal-month-count"></span>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" id="delete-habit-btn" class="btn btn-danger">削除</button>
+        <button type="button" id="edit-habit-btn" class="btn btn-ghost">編集</button>
+        <button type="button" id="calendar-close-btn" class="btn btn-primary">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
