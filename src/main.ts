@@ -11,6 +11,7 @@ import {
   type EvenAppBridge,
 } from "@evenrealities/even_hub_sdk"
 import { allRecipes, addCustomRecipe, deleteCustomRecipe, type Recipe } from "./recipes"
+import { fetchRecipeFromUrl } from "./import"
 import { buildPages, LINE_HEIGHT, type GlassPage } from "./pages"
 import {
   RecipeSession,
@@ -133,8 +134,14 @@ function renderHome(): void {
   const addBtn = el("button", "btn-add", "＋ レシピを追加")
   const form = el("div", "form hidden")
   form.innerHTML = `
+    <label>レシピサイトのURLから取り込む</label>
+    <div class="url-row">
+      <input id="import-url" type="url" inputmode="url" placeholder="https://cookpad.com/jp/recipes/... など">
+      <button class="btn-ghost" id="import-btn">読み込む</button>
+    </div>
+    <div id="import-status" class="import-status"></div>
     <label>レシピ名</label>
-    <input id="new-name" maxlength="20" placeholder="例: 味噌汁">
+    <input id="new-name" maxlength="40" placeholder="例: 味噌汁">
     <label>材料（1行に1つ）</label>
     <textarea id="new-ingredients" placeholder="豆腐 1/2丁&#10;わかめ 適量&#10;味噌 大さじ2"></textarea>
     <label>手順（1行に1つ。「5分煮る」のように書くとタイマーになります）</label>
@@ -145,6 +152,29 @@ function renderHome(): void {
     </div>
   `
   addBtn.addEventListener("click", () => form.classList.toggle("hidden"))
+
+  const importBtn = form.querySelector("#import-btn") as HTMLButtonElement
+  const importStatus = form.querySelector("#import-status") as HTMLElement
+  importBtn.addEventListener("click", async () => {
+    const url = (form.querySelector("#import-url") as HTMLInputElement).value.trim()
+    if (!/^https?:\/\//.test(url)) {
+      importStatus.textContent = "URLを入力してください（https://〜）"
+      return
+    }
+    importBtn.disabled = true
+    importStatus.textContent = "読み込み中…"
+    try {
+      const recipe = await fetchRecipeFromUrl(url)
+      ;(form.querySelector("#new-name") as HTMLInputElement).value = recipe.name
+      ;(form.querySelector("#new-ingredients") as HTMLTextAreaElement).value = recipe.ingredients.join("\n")
+      ;(form.querySelector("#new-steps") as HTMLTextAreaElement).value = recipe.steps.join("\n")
+      importStatus.textContent = `✓ 「${recipe.name}」を読み込みました（材料${recipe.ingredients.length}・手順${recipe.steps.length}）。内容を確認して保存してください。`
+    } catch (err) {
+      importStatus.textContent = `読み込みに失敗しました: ${err instanceof Error ? err.message : String(err)}。下のフォームに手入力もできます。`
+    } finally {
+      importBtn.disabled = false
+    }
+  })
   form.querySelector("#form-cancel")!.addEventListener("click", () => form.classList.add("hidden"))
   form.querySelector("#form-save")!.addEventListener("click", () => {
     const name = (form.querySelector("#new-name") as HTMLInputElement).value.trim()

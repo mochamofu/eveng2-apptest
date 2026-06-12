@@ -20,12 +20,13 @@
 Even G2のアプリは**コードがスマホ上で動き、グラスは表示と入力を担当**します（BLE接続）。本アプリは [Even Hub SDK](https://www.npmjs.com/package/@evenrealities/even_hub_sdk) を使ったWebアプリ（TypeScript + Vite）です。
 
 ```
-index.html / src/main.ts     コンパニオン（スマホ）画面: レシピ管理・ナビ開始・ミラー表示
+index.html / src/main.ts     コンパニオン（スマホ）画面: レシピ管理・URL取り込み・ナビ開始・ミラー表示
 preview.html / src/preview.ts ブラウザ単体で動くG2画面プレビュー（実機不要の動作確認用）
 src/glasses.ts               グラス側セッション: コンテナ配置・ページ送り・タイマー
 src/pages.ts                 レシピ→グラス画面ページ変換（pretextで実機と同じ行折り返し計算）
 src/duration.ts              手順テキストからの時間抽出（「1時間30分」「10〜15分」等に対応）
-src/recipes.ts               レシピ型・組み込みレシピ・localStorage保存
+src/recipes.ts               レシピ型・組み込み10レシピ・localStorage保存
+src/import.ts                レシピサイトURL取り込み（JSON-LD / 白ごはん.com / microdata）
 app.json                     Even Hubマニフェスト
 ```
 
@@ -33,7 +34,8 @@ app.json                     Even Hubマニフェスト
 
 - **ページ送り方式**: G2はスクロールできないため、[`@evenrealities/pretext`](https://www.npmjs.com/package/@evenrealities/pretext)（実機LVGLと同じグリフ幅）で事前にページ分割し、`textContainerUpgrade` でちらつきなく切り替えます。
 - **タイマー**: 手順テキストから時間表現を正規表現で抽出し、スマホ側で1秒ごとにヘッダーを更新します。
-- **レシピ管理**: 組み込み3レシピ（肉じゃが・親子丼・ナポリタン）に加え、コンパニオン画面から自分のレシピを追加できます（localStorage保存）。
+- **レシピ管理**: 組み込み10レシピ（肉じゃが・親子丼・ナポリタン・カレーライス・豚の生姜焼き・味噌汁・だし巻き卵・ハンバーグ・チャーハン・鶏の唐揚げ）に加え、コンパニオン画面から自分のレシピを追加できます（localStorage保存）。手順には分量（「醤油大さじ3」等）を明記済み。
+- **URL取り込み**: レシピサイトのURLを貼るだけで材料と手順を自動抽出してフォームに反映します（`src/import.ts`）。対応形式は ①JSON-LD（schema.org/Recipe。クックパッド・クラシル等の主要サイト）、②白ごはん.comのHTML構造、③microdata。WebViewのCORS制限で直接取得できないサイトは公開CORSプロキシ（allorigins / corsproxy.io）へフォールバックします（プロキシにはURLのみが渡ります）。
 
 ## 開発
 
