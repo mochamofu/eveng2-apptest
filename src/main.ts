@@ -10,7 +10,13 @@ import {
   OsEventTypeList,
   type EvenAppBridge,
 } from "@evenrealities/even_hub_sdk"
-import { allRecipes, addCustomRecipe, deleteCustomRecipe, type Recipe } from "./recipes"
+import {
+  allRecipes,
+  addCustomRecipe,
+  deleteCustomRecipe,
+  recipesByCategory,
+  type Recipe,
+} from "./recipes"
 import { fetchRecipeFromUrl } from "./import"
 import { buildPages, LINE_HEIGHT, type GlassPage } from "./pages"
 import {
@@ -126,9 +132,14 @@ function renderHome(): void {
     'ブラウザだけで試す場合は <a href="/preview.html">G2プレビュー</a> へ。'
   app.append(status)
 
-  for (const recipe of allRecipes()) {
-    app.append(buildRecipeCard(recipe))
-  }
+  // 検索ボックス
+  const search = el("input", "search-box") as HTMLInputElement
+  search.type = "search"
+  search.placeholder = `🔍 ${allRecipes().length}件のレシピを検索（料理名・材料）`
+  const listContainer = el("div", "recipe-groups")
+  search.addEventListener("input", () => renderRecipeList(listContainer, search.value.trim()))
+  app.append(search, listContainer)
+  renderRecipeList(listContainer, "")
 
   // レシピ追加フォーム
   const addBtn = el("button", "btn-add", "＋ レシピを追加")
@@ -195,6 +206,45 @@ function textareaLines(root: ParentNode, selector: string): string[] {
     .split("\n")
     .map((s) => s.trim())
     .filter(Boolean)
+}
+
+// カテゴリ別のレシピ一覧を描画する。query があれば料理名・材料で絞り込む。
+function renderRecipeList(container: HTMLElement, query: string): void {
+  container.innerHTML = ""
+  const q = query.toLowerCase()
+  const match = (r: Recipe) =>
+    !q ||
+    r.name.toLowerCase().includes(q) ||
+    r.ingredients.some((i) => i.toLowerCase().includes(q))
+
+  let shown = 0
+  for (const { category, recipes } of recipesByCategory()) {
+    const hits = recipes.filter(match)
+    if (hits.length === 0) continue
+    shown += hits.length
+
+    const section = el("section", "recipe-group")
+    const header = el("button", "group-header")
+    header.type = "button"
+    // 検索中は全カテゴリを開いた状態にする
+    const open = q.length > 0
+    header.innerHTML = `<span class="group-arrow">${open ? "▼" : "▶"}</span><span class="group-name">${category}</span><span class="group-count">${hits.length}</span>`
+    const body = el("div", "group-body")
+    if (!open) body.classList.add("hidden")
+    for (const recipe of hits) body.append(buildRecipeCard(recipe))
+
+    header.addEventListener("click", () => {
+      const hidden = body.classList.toggle("hidden")
+      const arrow = header.querySelector(".group-arrow")!
+      arrow.textContent = hidden ? "▶" : "▼"
+    })
+    section.append(header, body)
+    container.append(section)
+  }
+
+  if (shown === 0) {
+    container.append(el("p", "empty-message", "該当するレシピがありません。"))
+  }
 }
 
 function buildRecipeCard(recipe: Recipe): HTMLElement {

@@ -25,7 +25,8 @@ preview.html / src/preview.ts ブラウザ単体で動くG2画面プレビュー
 src/glasses.ts               グラス側セッション: コンテナ配置・ページ送り・タイマー
 src/pages.ts                 レシピ→グラス画面ページ変換（pretextで実機と同じ行折り返し計算）
 src/duration.ts              手順テキストからの時間抽出（「1時間30分」「10〜15分」等に対応）
-src/recipes.ts               レシピ型・組み込み10レシピ・localStorage保存
+src/recipes.ts               レシピ型・カテゴリ集約・localStorage保存
+src/builtin-recipes.ts       プリインストール100レシピのデータ
 src/import.ts                レシピサイトURL取り込み（JSON-LD / 白ごはん.com / microdata）
 app.json                     Even Hubマニフェスト
 ```
@@ -34,7 +35,7 @@ app.json                     Even Hubマニフェスト
 
 - **ページ送り方式**: G2はスクロールできないため、[`@evenrealities/pretext`](https://www.npmjs.com/package/@evenrealities/pretext)（実機LVGLと同じグリフ幅）で事前にページ分割し、`textContainerUpgrade` でちらつきなく切り替えます。
 - **タイマー**: 手順テキストから時間表現を正規表現で抽出し、スマホ側で1秒ごとにヘッダーを更新します。
-- **レシピ管理**: 組み込み10レシピ（肉じゃが・親子丼・ナポリタン・カレーライス・豚の生姜焼き・味噌汁・だし巻き卵・ハンバーグ・チャーハン・鶏の唐揚げ）に加え、コンパニオン画面から自分のレシピを追加できます（localStorage保存）。手順には分量（「醤油大さじ3」等）を明記済み。
+- **レシピ管理**: 組み込み**100レシピ**（和食・煮物／焼き物と炒め物／揚げ物／ご飯もの・丼／中華／洋食／イタリアン・パスタ／麺類／鍋・スープ／副菜・サラダ／デザートの11カテゴリ）に加え、コンパニオン画面から自分のレシピを追加できます（localStorage保存）。手順には分量（「醤油大さじ3」等）を明記済み。コンパニオン画面はカテゴリ別の折りたたみ表示＋料理名・材料での検索に対応。
 - **URL取り込み**: レシピサイトのURLを貼るだけで材料と手順を自動抽出してフォームに反映します（`src/import.ts`）。対応形式は ①JSON-LD（schema.org/Recipe。クックパッド・クラシル等の主要サイト）、②白ごはん.comのHTML構造、③microdata。WebViewのCORS制限で直接取得できないサイトは公開CORSプロキシ（allorigins / corsproxy.io）へフォールバックします（プロキシにはURLのみが渡ります）。
 
 ## 開発

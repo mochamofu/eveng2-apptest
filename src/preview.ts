@@ -1,7 +1,7 @@
 // ブラウザ単体で動くG2画面プレビュー。GlassesIO をDOM描画で実装し、
 // 実機と同じ RecipeSession ロジックをそのまま動かす。
 
-import { allRecipes } from "./recipes"
+import { allRecipes, recipesByCategory } from "./recipes"
 import { buildPages, LINE_HEIGHT } from "./pages"
 import {
   RecipeSession,
@@ -63,11 +63,16 @@ function emit(g: GlassGesture): void {
 
 function populateRecipes(): void {
   select.innerHTML = ""
-  for (const recipe of allRecipes()) {
-    const option = document.createElement("option")
-    option.value = recipe.id
-    option.textContent = recipe.name
-    select.append(option)
+  for (const { category, recipes } of recipesByCategory()) {
+    const group = document.createElement("optgroup")
+    group.label = category
+    for (const recipe of recipes) {
+      const option = document.createElement("option")
+      option.value = recipe.id
+      option.textContent = recipe.name
+      group.append(option)
+    }
+    select.append(group)
   }
 }
 
