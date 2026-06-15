@@ -18,6 +18,7 @@ import {
   type Recipe,
 } from "./recipes"
 import { fetchRecipeFromUrl } from "./import"
+import { pickDailyRecommendations, greeting } from "./recommend"
 import { buildPages, LINE_HEIGHT, type GlassPage } from "./pages"
 import {
   RecipeSession,
@@ -132,6 +133,8 @@ function renderHome(): void {
     'ブラウザだけで試す場合は <a href="/preview.html">G2プレビュー</a> へ。'
   app.append(status)
 
+  app.append(buildRecommendations())
+
   // 検索ボックス
   const search = el("input", "search-box") as HTMLInputElement
   search.type = "search"
@@ -206,6 +209,31 @@ function textareaLines(root: ParentNode, selector: string): string[] {
     .split("\n")
     .map((s) => s.trim())
     .filter(Boolean)
+}
+
+// 起動時の「今日のおすすめ」3レシピ。その日の中では同じ3品を表示する。
+function buildRecommendations(): HTMLElement {
+  const section = el("section", "recommend")
+  const recipes = pickDailyRecommendations(allRecipes(), 3)
+
+  const head = el("div", "recommend-head")
+  head.innerHTML = `<span class="recommend-greet">${greeting()}！</span><span class="recommend-title">今日のおすすめ</span>`
+  section.append(head)
+
+  const grid = el("div", "recommend-grid")
+  for (const recipe of recipes) {
+    const card = el("button", "recommend-card")
+    card.type = "button"
+    card.innerHTML =
+      `<span class="recommend-cat">${recipe.category ?? "マイレシピ"}</span>` +
+      `<span class="recommend-name">${recipe.name}</span>` +
+      `<span class="recommend-meta">材料${recipe.ingredients.length} ・ 手順${recipe.steps.length}</span>` +
+      `<span class="recommend-go">▶ グラスでナビ開始</span>`
+    card.addEventListener("click", () => startNavigation(recipe))
+    grid.append(card)
+  }
+  section.append(grid)
+  return section
 }
 
 // カテゴリ別のレシピ一覧を描画する。query があれば料理名・材料で絞り込む。

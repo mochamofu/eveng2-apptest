@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest"
 import { BUILTIN_RECIPES, builtinCategories } from "./recipes"
 
 describe("組み込みレシピ", () => {
-  it("ちょうど100種ある", () => {
-    expect(BUILTIN_RECIPES).toHaveLength(100)
+  it("ちょうど150種ある", () => {
+    expect(BUILTIN_RECIPES).toHaveLength(150)
   })
 
   it("IDが一意である", () => {
